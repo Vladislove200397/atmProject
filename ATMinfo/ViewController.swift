@@ -25,7 +25,6 @@ class ViewController: UIViewController {
         AtmProvider().getCurrency(city: city) { atmsArr in
             self.atmArr = atmsArr
             self.drawMarker()
-            print(atmsArr)
             self.spinner.stopAnimating()
         } failure: { error in
             print(error)
