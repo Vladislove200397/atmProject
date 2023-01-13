@@ -7,12 +7,15 @@
 
 import UIKit
 import GoogleMaps
+import GoogleMapsUtils
 
 class ViewController: UIViewController {
     @IBOutlet weak var mapView: GMSMapView!
     @IBOutlet weak var spinner: UIActivityIndicatorView!
+    
     var atmArr: [AtmModel] = []
     var markers: [GMSMarker] = []
+    var clusterManager: GMUClusterManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,11 +24,23 @@ class ViewController: UIViewController {
         self.view.backgroundColor = .red
     }
     
+    private func setUpClusterManager() {
+        let iconGenerator = GMUDefaultClusterIconGenerator()
+        let algorithm = GMUNonHierarchicalDistanceBasedAlgorithm()
+        let render = GMUDefaultClusterRenderer(mapView: self.mapView, clusterIconGenerator: iconGenerator)
+        
+        clusterManager = GMUClusterManager(map: self.mapView, algorithm: algorithm, renderer: render)
+        clusterManager.add(markers)
+        mapView.clear()
+        clusterManager.cluster()
+    }
+    
     private func getAtms(city: String) {
         self.spinner.startAnimating()
         AtmProvider().getCurrency(city: city) { atmsArr in
             self.atmArr = atmsArr
-            self.drawMarker()
+            self.drawClusteringMarkers()
+            
             self.spinner.stopAnimating()
         } failure: { error in
             print(error)
@@ -40,7 +55,7 @@ class ViewController: UIViewController {
         mapView.animate(to: camera)
     }
     
-    private func drawMarker() {
+    private func drawClusteringMarkers() {
         atmArr.enumerated().forEach { index, atm in
             let marker =
             GMSMarker(position: CLLocationCoordinate2D(
@@ -55,30 +70,32 @@ class ViewController: UIViewController {
             }
             marker.map = mapView
             markers.append(marker)
+            self.setUpClusterManager()
+            clusterManager.setMapDelegate(self)
         }
     }
 }
 
 extension ViewController: GMSMapViewDelegate {
     func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
-        mapView.animate(toLocation: CLLocationCoordinate2D(
-            latitude: marker.position.latitude,
-            longitude: marker.position.longitude))
+        mapView.animate(toLocation: marker.position)
         
         mapView.selectedMarker = marker
         
         cameraZoomOnTap(coordinate: CLLocationCoordinate2D(
             latitude: marker.position.latitude,
             longitude: marker.position.longitude))
-        
-        
-        if let atm = marker.userData as? AtmModel {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            guard let infoVC = storyboard.instantiateViewController(withIdentifier: String(describing: AtmInfoController.self)) as? AtmInfoController else { return false }
-            infoVC.set(atm: atm)
-            present(infoVC, animated: true)
+        if marker.userData is GMUCluster {
+            mapView.animate(toZoom: mapView.camera.zoom + 1)
+            return true
+        } else {
+            if let atm = marker.userData as? AtmModel {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                guard let infoVC = storyboard.instantiateViewController(withIdentifier: String(describing: AtmInfoController.self)) as? AtmInfoController else { return false }
+                infoVC.set(atm: atm)
+                present(infoVC, animated: true)
+            }
+            return true
         }
-        return true
     }
-        
 }

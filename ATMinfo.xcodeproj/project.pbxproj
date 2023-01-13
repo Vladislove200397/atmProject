@@ -71,6 +71,7 @@
 		B9A0C1DA297066E000534DB9 /* ATMinfo */ = {
 			isa = PBXGroup;
 			children = (
+				B9A0C1FA297165A900534DB9 /* ClusterManager */,
 				B9A0C1F72970718000534DB9 /* AtmProvider */,
 				B9A0C1F229706D0F00534DB9 /* AtmModel */,
 				B9A0C1EF297069C100534DB9 /* AtmApi */,
@@ -108,6 +109,13 @@
 				B9A0C1F52970702A00534DB9 /* AtmProvider.swift */,
 			);
 			path = AtmProvider;
+			sourceTree = "<group>";
+		};
+		B9A0C1FA297165A900534DB9 /* ClusterManager */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ClusterManager;
 			sourceTree = "<group>";
 		};
 		F520993585D2F17CF0E865C5 /* Frameworks */ = {
