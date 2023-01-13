@@ -18,7 +18,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         mapView.delegate = self
         getAtms(city: "Минск")
-        self.view.backgroundColor = .red
+        self.view.backgroundColor = .blue
     }
     
     private func getAtms(city: String) {
