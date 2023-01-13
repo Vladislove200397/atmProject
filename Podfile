@@ -8,4 +8,5 @@ target 'ATMinfo' do
   # Pods for ATMinfo
 pod 'Moya'
 pod 'GoogleMaps'
+pod 'Google-Maps-iOS-Utils', '~> 4.1.0'
 end
